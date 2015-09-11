@@ -41,4 +41,35 @@ class Elgentos_CodebaseExceptions_Helper_Data extends Mage_Core_Helper_Abstract 
 
         $this->client->notifyOnError($reportData[0],$backtraces);
     }
+
+    /**
+     * @param string $message
+     */
+    public function sendToAirbrake($message) {
+        $backtraceArray = explode("\n", $message);
+        if (count($backtraceArray) < 1) {
+            return;
+        }
+        $errorMessage = '';
+        //reformatting exception
+        if (isset($backtraceArray[0])) {
+            $errorMessage .= $backtraceArray[0];
+            unset($backtraceArray[0]);
+        }
+        if (empty($errorMessage) && isset($backtraceArray[1])) {
+            $errorMessage .= $backtraceArray[1];
+            unset($backtraceArray[1]);
+        }
+        foreach($backtraceArray as $key => $line) {
+            $backtraceArray[$key] = array('file' => $line);
+        }
+        $notice = new \Airbrake\Notice;
+        $notice->load(array(
+            'errorClass'   => 'PHP Error',
+            'backtrace'    => $backtraceArray,
+            'errorMessage' => $errorMessage,
+        ));
+
+        $this->client->notify($notice);
+    }
 }
