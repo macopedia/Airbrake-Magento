@@ -13,8 +13,8 @@ class Elgentos_CodebaseExceptions_Model_Log_Writer_Stream extends Zend_Log_Write
     {
         $line = $this->_formatter->format($event);
 
-        if ($event['priority'] <= ZEND_LOG::WARN) {
-            Mage::helper('codebaseexceptions')->sendToAirbrake($event['message']);
+        if ($event['priority'] <= Zend_Log::WARN) {
+            Mage::helper('codebaseexceptions')->sendToAirbrake($event['message'], 4);
         }
         if (false === @fwrite($this->_stream, $line)) {
             throw new Zend_Log_Exception("Unable to write to stream");
